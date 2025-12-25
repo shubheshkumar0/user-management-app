@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: user_db
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    container_name: user_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/userdb
+    depends_on:
+      - mongo
+    networks:
+      - app_network
+
+  frontend:
+    build: ./frontend
+    container_name: user_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+volumes:
+  mongo_data:
+
+networks:
+  app_network:
+    driver: bridge
